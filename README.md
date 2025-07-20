@@ -8,11 +8,11 @@
 5. Run `source .venv/bin/activate`
 
 ## TO DO: 
-[] We need to select ≥2 pathologies out of the list 
-[] Preprocess data (stored in `data/` folder
-[] Set up U-Net baseline
-[] Modify or write dataloader class
-[] Baseline run & store results
+- [ ] We need to select ≥2 pathologies out of the list 
+- [ ] Preprocess data (stored in `data/` folder
+- [ ] Set up U-Net baseline
+- [ ] Modify or write dataloader class
+- [ ] Baseline run & store results
 
 ## References
 * M&Ms-2 Challenge (https://www.ub.edu/mnms-2/)
