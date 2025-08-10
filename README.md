@@ -12,8 +12,11 @@
 - [x] We need to select ≥2 pathologies out of the list: Selecting Normal & Hypertrophic Cardiomyopathy gives us 135 patients
 - [x] Preprocess data (stored in `data/out/` folder)
 - [ ] Set up U-Net baseline
-- [ ] Modify or write dataloader class
+- [ ] ~~Modify or write dataloader class~~
 - [ ] Baseline run & store results
+- [x] Re-preprocess the data & develop dataloader method
+- [x] Set up experiment model SegFormer + ViT
+- [x] experiment model run & output results
 
 ## Data structure
 Image files are split up by patient ID and include the following (we are interested in SA, or Short-Axis views):
