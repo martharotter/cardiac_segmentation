@@ -16,7 +16,8 @@
 - [ ] Baseline run & store results
 - [x] Re-preprocess the data & develop dataloader method
 - [x] Set up experiment model SegFormer + ViT
-- [x] experiment model run & output results
+- [x] Experiment model run & output results
+- [ ] Compelete the report & slides
 
 ## Data structure
 Image files are split up by patient ID and include the following (we are interested in SA, or Short-Axis views):
