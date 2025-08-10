@@ -1,0 +1,102 @@
+\documentclass[twoside,11pt]{article}
+
+\usepackage{blindtext}
+
+% Any additional packages needed should be included after jmlr2e.
+% Note that jmlr2e.sty includes epsfig, amssymb, natbib and graphicx, and defines many common macros, such as 'proof' and 'example'.
+%
+% It also sets the bibliographystyle to plainnat; for more information on natbib citation styles, see the natbib documentation, 
+% a copy of which is archived at http://www.jmlr.org/format/natbib.pdf
+
+% Available options for package jmlr2e are:
+%
+%   - abbrvbib : use abbrvnat for the bibliography style
+%   - nohyperref : do not load the hyperref package
+%   - preprint : remove JMLR specific information from the template, useful for example for posting to preprint servers.
+\usepackage[abbrvbib, preprint]{jmlr2e}
+\usepackage{jmlr2e}
+
+% Definitions of handy macros can go here
+% \newcommand{\dataset}{{\cal D}}
+% \newcommand{\fracpartial}[2]{\frac{\partial #1}{\partial #2}}
+
+\newcommand{\id}[1]{\textnormal{(Student ID: #1)}}
+
+\firstpageno{1}
+
+\begin{document}
+
+  \title{M\&Ms-2 Segmentation Report}
+
+  \author{
+    \name O Brien William \id{15396226} \\
+    \email @ucdconnect.ie \\
+    \AND
+    \name Rotter Martha \id{24225012} \\
+    \email @ucdconnect.ie \\
+    \AND
+    \name DU Yu \id{24213100} \\
+    \email yu.du2@ucdconnect.ie \\
+    \AND
+    \name Srikannan Devaharish \id{24209538} \\
+    \email @ucdconnect.ie \\
+    \AND
+    \name XIAO Binhan \id{24207808} \\
+    \email @ucdconnect.ie \\
+  }
+
+  \maketitle
+
+  \begin{abstract}%   <- trailing '%' for backward compatibility of .sty file
+    % Example paragraph (placeholder), and replace it with what you want to write
+    \blindtext
+  \end{abstract}
+
+  \begin{keywords}
+    MRI(M\&Ms-2), Segmentation(SegFormer), ViT
+  \end{keywords}
+
+  \section{Introduction}
+
+    % Example paragraph (placeholder), and replace it with what you want to write
+    \blindtext
+    Here is a citation example \cite{chow:68}.
+
+  \section{Methodology}
+
+    % Example paragraph (placeholder)
+    \blindtext
+    Here is a citation example \cite{chow:68}.
+
+  \section{Experiments}
+
+    % Example paragraph (placeholder)
+    \blindtext
+    Here is a citation example \cite{chow:68}.
+
+  \section{Results}
+
+    % Example paragraph (placeholder)
+    \blindtext
+    Here is a citation example \cite{chow:68}.
+
+  \section{Conclusion}
+
+    % Example paragraph (placeholder)
+    \blindtext
+    Here is a citation example \cite{chow:68}.
+
+  \section{Discussion}
+
+    % Example paragraph (placeholder)
+    \blindtext
+    Here is a citation example \cite{chow:68}.
+
+  % Manual newpage inserted to improve layout of sample file - not
+  % needed in general before appendices/bibliography.
+  \newpage
+
+  \vskip 0.2in
+  \bibliography{references}
+
+\end{document}
