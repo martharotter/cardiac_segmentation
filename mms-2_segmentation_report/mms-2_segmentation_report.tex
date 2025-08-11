@@ -48,14 +48,16 @@
   \maketitle
 
   \begin{abstract}%   <- trailing '%' for backward compatibility of .sty file
+
+
+
+  \textbf{Purpose}: We aimed to develop and evaluate deep learning models for automated cardiac segmentation and pathology classification in cardiac MRI. This addresses the need for reliable, accurate tools that work across various heart conditions, following the M\&Ms-2 challenge guidelines.
   
-  \textbf{Purpose}:  To develop and evaluate multiple deep learning architectures for automated cardiac segmentation and pathology classification in cardiac MRI, addressing the need for robust, accurate, and reproducible cardiac functional assessment across multiple pathological conditions as per the M\&Ms-2 challenge guidelines.
+  \textbf{Methods}: We built and compared three approaches. First, a temporal-aware 2D+Time UNet that uses 5-frame windows from CINE MRI sequences to better grasp heart motion. Second, a two-stage transformer pipeline: SegFormer-B0 handles 4-class segmentation on 256×256 slices, followed by ViT-B/16 for disease classification using the segmented areas. Third, standard 2D UNet models as baselines. For preprocessing, we aligned sequences for the temporal method and normalized intensities across all. We trained on the M\&Ms-2 dataset with train-validation splits, using Dice plus CrossEntropy losses and AdamW optimization.
   
-  \textbf{Methods}: We implemented and compared three distinct deep learning approaches: (1) a temporal-aware 2D+Time UNet architecture using a 5-frame temporal context windows from CINE MRI sequences for enhanced cardiac motion understanding, (2) a dual-stage transformer pipeline combining SegFormer-B0 for 4-class semantic segmentation with Vision Transformer (ViT-B/16) for disease classification, and (3) traditional 2D UNet baselines. The temporal UNet approach leverages cardiac motion patterns across time frames, while the transformer pipeline processes individual 256×256 slices with SegFormer performing multi-class segmentation, followed by ViT pathology classification on concatenated segmented regions. Preprocessing involved temporal sequence alignment for the 2D+Time approach and standardized intensity normalization across all methods. Models were trained using the M\&Ms-2 dataset with appropriate train-validation splits, employing combined Dice and CrossEntropy losses for segmentation tasks and AdamW optimization.
-    
-  \textbf{Results}: Our evaluation identified distinct advantages for each approach: the 2D+Time UNet demonstrated superior segmentation accuracy by incorporating temporal cardiac motion context, achieving improved boundary delineation and anatomical consistency across cardiac cycles. The SegFormer-ViT pipeline showed robust performance on multi-center, multi-pathology data with effective handling of intensity variations and reliable pathology classification based on segmented cardiac features. Traditional 2D methods provided baseline performance benchmarks. All approaches successfully handled the challenges of data variability and diverse pathological presentations in the M\&Ms-2 dataset.
-    
-  \textbf{Conclusions}: This comprehensive study establishes multiple viable deep learning frameworks for automated cardiac MRI analysis, each with distinct advantages: temporal methods excel at motion-aware segmentation, transformer approaches provide robust multi-pathology classification, and the comparative framework enables optimal method selection based on specific clinical requirements. The temporal-aware and transformer-based approaches overcome limitations of traditional 2D methods and provide a foundation for clinical tools supporting standardized cardiac assessment across diverse conditions.
+  \textbf{Results}: Each method improved in different ways. The 2D+Time UNet led in segmentation by using motion context, leading to sharper boundaries and consistent anatomy through cardiac cycles. In contrast, the SegFormer-ViT pipeline excelled at handling multi-center data variations and delivered solid pathology classification from segmented features. Traditional 2D UNets offered reliable baselines. Overall, all tackled dataset diversity and pathology challenges effectively.
+  
+  \textbf{Conclusions}: This study highlights flexible, deep learning options for cardiac MRI analysis. Temporal models stand out for motion handling, transformers for robust classification across pathologies, and our comparisons guide choices for real clinical needs. These advances surpass basic 2D limits and pave the way for standardized tools in varied heart conditions.
   \end{abstract}
 
   \begin{keywords}
@@ -76,17 +78,17 @@
   
   Traditional automated segmentation approaches for cardiac MRI have evolved through several paradigms. Early methods relied on statistical shape models and atlas-based approaches, which struggled with pathological variations. The introduction of deep learning, particularly U-Net architectures with encoder-decoder structures and skip connections, achieved reasonable performance on relatively homogeneous datasets but often struggled with domain shift in multi-center acquisitions and significant anatomical variations in pathological cases.
   
-  Recent advances have explored two key directions: (1) temporal modeling approaches that leverage the inherent temporal structure of CINE MRI sequences to improve segmentation consistency and accuracy, and (2) transformer-based architectures that capture long-range spatial dependencies through self-attention mechanisms. The temporal dimension of cardiac MRI has been particularly underexplored, despite containing rich information about cardiac motion patterns that could significantly enhance segmentation performance.
+  Recent advances have explored two key directions: (1) temporal modelling approaches that leverage the inherent temporal structure of CINE MRI sequences to improve segmentation consistency and accuracy, and (2) transformer-based architectures that capture long-range spatial dependencies through self-attention mechanisms. The temporal dimension of cardiac MRI has been particularly underexplored, despite containing rich information about cardiac motion patterns that could significantly enhance segmentation performance.
   
   The SegFormer architecture introduces a paradigm shift by replacing convolutional encoders with hierarchical vision transformers. Its key innovation lies in an efficient MLP decoder that aggregates multi-scale features without requiring complex pyramid pooling modules. For medical imaging, this offers: (1) improved global context handling, (2) reduced sensitivity to local texture variations, and (3) more efficient multi-scale feature aggregation.
   
-  Vision Transformers have demonstrated superior performance in medical image classification, particularly when leveraging pre-trained weights. The ViT-B/16 architecture's patch-based tokenization and multi-head self-attention show robust performance across medical imaging modalities, with particular value in modeling distributed pathological patterns rather than localized features.
+  Vision Transformers have demonstrated superior performance in medical image classification, particularly when leveraging pre-trained weights. The ViT-B/16 architecture's patch-based tokenization and multi-head self-attention show robust performance across medical imaging modalities, with particular value in modelling distributed pathological patterns rather than localized features.
 
   \section{Related Work}
 
   Recent cardiac segmentation literature reveals the limitations of single-approach methodologies when applied to multi-center, multi-pathology datasets. Chen et al. (2021) reported performance degradation of up to 15\% Dice coefficient when applying U-Net models trained on single-center data to external validation sets, highlighting domain adaptation challenges.
   
-  \textbf{Temporal Approaches}: Several studies have explored temporal modeling in cardiac segmentation. Guo et al. (2021) demonstrated the ability to achieve higher accuracy compared to the state-of-the-art methods with their spatial-sequential CNN network for temporal left ventricle segmentation\cite{guo2021}. However, these approaches often require substantial computational resources and careful temporal alignment.
+  \textbf{Temporal Approaches}: Several studies have explored temporal modelling in cardiac segmentation. Guo et al. (2021) demonstrated the ability to achieve higher accuracy compared to the state-of-the-art methods with their spatial-sequential CNN network for temporal left ventricle segmentation\cite{guo2021}. However, these approaches often require substantial computational resources and careful temporal alignment.
   
   \textbf{Transformer-Based Segmentation}: The SegFormer architecture has been adapted for medical applications with a reported dice coefficient score of 97.92\%, outperforming other models and approaches on cardiac segmentation tasks\cite{wu2024}. The key advantage stems from hierarchical feature extraction capturing both local anatomical details and global morphological context. Recent medical imaging studies have shown particular benefits in handling multi-center data variations and pathological presentations.
   
@@ -172,7 +174,7 @@
   
   Several limitations warrant consideration for future research directions. The temporal approach requires complete CINE sequences, which may limit applicability in clinical scenarios with incomplete or corrupted temporal data. Additionally, the increased computational requirements of both temporal and transformer approaches may constrain deployment in resource-limited environments.
   
-  Future research should explore hybrid architectures that combine the temporal awareness of sequence-based models with the robust feature representation of transformer architectures. Investigation of more efficient attention mechanisms and temporal modeling approaches could address current computational limitations while preserving performance advantages.
+  Future research should explore hybrid architectures that combine the temporal awareness of sequence-based models with the robust feature representation of transformer architectures. Investigation of more efficient attention mechanisms and temporal modelling approaches could address current computational limitations while preserving performance advantages.
   
   The integration of uncertainty quantification and interpretability mechanisms represents another important research direction. Clinical deployment of automated analysis tools requires confidence estimation and failure detection capabilities to ensure safe integration into diagnostic workflows.
     
@@ -192,7 +194,7 @@
   
   \subsection{Concluding Remarks}
   
-  This comprehensive evaluation demonstrates that the optimal approach for automated cardiac MRI analysis depends on the specific clinical context, available computational resources, and required performance characteristics. The temporal-aware approach offers superior accuracy through motion modelling, transformer-based methods provide exceptional robustness to data variations, and traditional approaches maintain utility for specific deployment scenarios.
+  This comprehensive project demonstrates that the optimal approach for automated cardiac MRI analysis depends on the specific clinical context, available computational resources, and required performance characteristics. The temporal-aware approach offers superior accuracy through motion modelling, transformer-based methods provide exceptional robustness to data variations, and traditional approaches maintain utility for specific deployment scenarios.
   
   The established comparative framework and performance benchmarks provide a foundation for future research and clinical deployment decisions. As cardiac imaging analysis moves toward widespread clinical adoption, the evidence-based architectural selection guidelines presented in this work will support informed implementation decisions that balance accuracy, computational efficiency, and clinical utility.
   
