@@ -152,6 +152,15 @@
         \label{fig:segformer_architecture}
       \end{figure}
 
+      We implement a U-Net (Cine2DTimeUNet) with four encoder stages (64→128→256→512), a 1024-channel bottleneck, and a symmetric decoder with transposed convolutions for upsampling and skip connections at each resolution. Each block uses two 3×3 convolutions with BatchNorm and ReLU; the final head is a 1×1 convolution followed by Sigmoid to produce a single-channel probability map. The input channels = T+1 = 6 (5 context + 1 target); the output is 1 channel followed by Sigmoid for a binary RV mask (the model architecture is shown in the figure \ref{fig:unet_archtecture}).
+
+      \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.8\textwidth]{figures/unet_archtecture.png} 
+        \caption{U-Net Architecture for Image Segmentation}
+        \label{fig:unet_archtecture}
+      \end{figure}
+
   \section{Experiments}
 
     % Example paragraph (placeholder)
