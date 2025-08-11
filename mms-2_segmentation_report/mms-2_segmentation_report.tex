@@ -49,8 +49,6 @@
 
   \begin{abstract}%   <- trailing '%' for backward compatibility of .sty file
 
-
-
   \textbf{Purpose}: We aimed to develop and evaluate deep learning models for automated cardiac segmentation and pathology classification in cardiac MRI. This addresses the need for reliable, accurate tools that work across various heart conditions, following the M\&Ms-2 challenge guidelines.
   
   \textbf{Methods}: We built and compared three approaches. First, a temporal-aware 2D+Time UNet that uses 5-frame windows from CINE MRI sequences to better grasp heart motion. Second, a two-stage transformer pipeline: SegFormer-B0 handles 4-class segmentation on 256×256 slices, followed by ViT-B/16 for disease classification using the segmented areas. Third, standard 2D UNet models as baselines. For preprocessing, we aligned sequences for the temporal method and normalized intensities across all. We trained on the M\&Ms-2 dataset with train-validation splits, using Dice plus CrossEntropy losses and AdamW optimization.
@@ -120,9 +118,39 @@
 
   \section{Methodology}
 
-    % Example paragraph (placeholder)
-    \blindtext
-    Here is a citation example \cite{chow:68}.
+    Based on the dataset, we try to formulate right-ventricular (RV) segmentation in cardiac MRI as a static 2D problem and a 2D+Time problem. Concretely, we use the 2D image of a certain frame of the cine provided by the dataset to perform image segmentation experiments separately. We also stack a short temporal window of preceding frames with the target frame along the channel dimension and train a U-Net to predict a binary mask of the RV on the target frame. This leverages temporal coherence without the heavier cost of full 3D/3D+Time convolutions. Finally, we connect the segmentation output to the classification model to complete the classification of MRI pathology (the complete process is shown in the figure \ref{fig:pipeline}).
+
+    \begin{figure}[H]
+      \centering
+      \includegraphics[width=0.8\textwidth]{figures/pipeline.jpg} 
+      \caption{The complete pipeline of the experimental model}
+      \label{fig:pipeline}
+    \end{figure}
+
+    \subsection{Data Pre-processing }
+
+      In perspective of data format and pairing, we both implementations work on NIfTI (\texttt{.nii.gz}). Images and labels are matched by filename patterns; invalid or missing label pairs are skipped. In the cine pipeline, files are also grouped by patient and slice, then sorted by time to form temporal sequences.
+      In terms of numerical scaling, we used different strategies to normalize the data intensity: one is to first perform 99th percentile cropping to suppress outliers, and then scale to [0, 255] (uint8) to fit the feature extractor; the other is to use the min–max technique on a frame-by-frame basis and directly scale to [0, 1] (float) in the Cine pipeline.
+      We also used spatial resampling to unify the images to 256×256; during movie processing, we also used bilinear interpolation on the images and let the labels use nearest neighbors to maintain categories.
+      For image channel processing, we use a conventional method to expand the grayscale frame into 3 channels (copying it into pseudo RGB) and then feed it into the FeatureExtractor (including resize/normalize). The label image is scaled to 256×256 using the nearest neighbor method, maintaining the integer mask (multi-classification). For 2D+time cine, we take T = 5 historical frames and the target frame and splice them into 6 channels in the channel dimension. The label image is still kept as a single channel (RV binary classification).
+
+    \subsection{Model}
+
+      We consolidate two complementary architectures that target different aspects of cine cardiac segmentation:
+
+      \begin{itemize}
+        \item Cine2DTimeUNet (temporal U-Net)
+        \item SegFormer-B0 (per-frame transformer for semantic segmentation)
+      \end{itemize}
+
+      SegFormer-B0 uses a lightweight Vision Transformer encoder with hierarchical Mix-FFN and a segmentation decode head, instantiated as SegformerForSemanticSegmentation with num_labels = #classes. Inputs are 3-channel frames preprocessed by SegformerFeatureExtractor. The model outputs per-pixel logits over classes; a softmax/argmax is used at inference. This branch is well-suited for multi-class structures (e.g., different cardiac substructures) and benefits from strong global context modeling (the model architecture is shown in the figure \ref{fig:segformer_architecture}).
+
+      \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.8\textwidth]{figures/segformer_architecture.png} 
+        \caption{SegFormer Architecture}
+        \label{fig:segformer_architecture}
+      \end{figure}
 
   \section{Experiments}
 
@@ -223,7 +251,5 @@ Linardos, A., Kushibar, K., Walsh, S., Gkontra, P., \& Lekadir, K. (2022). Feder
 Wu, H., Qu, G., Xiao, Z., \& Chunyu, F. (2024). Enhancing left ventricular segmentation in echocardiography with a modified mixed attention mechanism in SegFormer architecture. \textit{Heliyon, 10(15)}, e34845. \url{https://doi.org/10.1016/j.heliyon.2024.e34845}
 
 \end{thebibliography}
-
-  
 
 \end{document}
