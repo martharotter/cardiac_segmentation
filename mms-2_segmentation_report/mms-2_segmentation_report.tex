@@ -172,6 +172,17 @@
     % Example paragraph (placeholder)
     \blindtext
     Here is a citation example \cite{chow:68}.
+    
+   \section{Discussion}
+    This study evaluated three distinct approaches to right ventricular segmentation and pathology classification in cardiac MRI: a conventional convolutional neural network (U-Net), a transformer-based model (SegFormer), and a temporal architecture (2D+Time U-Net), along with a dual-stage SegFormer–ViT classification pipeline.
+
+    The experimental results indicate that SegFormer consistently outperformed U-Net, particularly in multi-center scenarios, underscoring the benefit of global context modeling for capturing the crescentic geometry and complex anatomical variations of the right ventricle. The temporal 2D+Time U-Net demonstrated improved boundary continuity across cardiac cycles, which is clinically valuable for functional assessment. However, these gains came at the cost of substantially increased computational requirements, potentially limiting real-time clinical adoption.
+    
+    The two-step SegFormer–ViT setup did a good job of connecting shape detection to function analysis. By zeroing in on the right ventricle before running classification, it avoided noise from other heart structures and made the results easier to understand. Still, the ViT model started to overfit after just a few training rounds, meaning it performed well on training data but struggled with new cases. Techniques like early stopping, stronger regularization, and more aggressive data augmentation could help fix this.
+    
+    That said, there were some clear limitations. The MMs-2 dataset used here had an uneven spread of different heart conditions, which likely made the model less reliable for rare diseases. Also, it relied only on SSFP cine MRI scans—skipping extra imaging methods like T1/T2 mapping or LGE—which meant fewer data features to work with. And while the numbers looked great, tricky cases like blurry images or low contrast still caused small segmentation errors, such as slight mask overflow or softer edges along the ventricle.
+    
+    Stepping back, the results show a classic trade-off: more advanced models like transformers and time-aware networks can improve accuracy, but they also demand more computing power, which isn’t always realistic in a busy hospital. To make this work in real-world practice, the system will need faster processing, more efficient inference, and testing on entirely new datasets. Even so, this research proves that accurate, automated, and understandable right ventricle analysis is possible—pointing toward smoother, more connected cardiac MRI workflows in the future.
 
   \section{Conclusion}
   
