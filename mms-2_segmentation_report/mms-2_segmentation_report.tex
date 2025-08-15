@@ -1,6 +1,7 @@
 \documentclass[twoside,11pt]{article}
 
 \usepackage{blindtext}
+\usepackage{afterpage}
 
 % Any additional packages needed should be included after jmlr2e.
 % Note that jmlr2e.sty includes epsfig, amssymb, natbib and graphicx, and defines many common macros, such as 'proof' and 'example'.
@@ -161,17 +162,42 @@
         \label{fig:unet_archtecture}
       \end{figure}
 
-  \section{Experiments}
+ \section{Experiments}
+ \subsection{U-Net Models}
+Initially we attempted to utilize the static snapshots from the MRI per scan but were met with quite poor results in terms of the overlap between the ground truth labels and the predicted segment. The models seemed to struggle generalizing the data but were able to make substantial reductions in their loss value for around the first 10 epochs after which there was diminishing returns. The UNET models tested include:
 
-    % Example paragraph (placeholder)
-    \blindtext
-    Here is a citation example \cite{chow:68}.
+\begin{itemize}
+    \item \textbf{UNet} - A classic model with an encoder-decoder structure and skip connections to maintain detail.
+    \item \textbf{UNet++} - An improved UNet with nested and dense skip connections for more precise segmentation.
+    \item \textbf{DeepLabV3+} - Uses atrous convolutions and a pyramid pooling module to capture context at multiple scales.
+    \item \textbf{FPN} - A component that builds a feature pyramid to represent objects at different sizes.
+    \item \textbf{PSPNet} - Uses a Pyramid Pooling Module to gather global context from different regions.
+    \item \textbf{LinkNet} - An efficient encoder-decoder model with simple skip connections.
+    \item \textbf{MA-Net} - Incorporates attention mechanisms to selectively focus on the most important features.
+    \item \textbf{PAN} - Combines an FPN-like structure with a spatial attention module.
+    \item \textbf{UperNet} - Unifies FPN and pyramid pooling for general-purpose segmentation.
+    \item \textbf{DPT} - A modern model that uses a Vision Transformer instead of a traditional CNN.
+\end{itemize}
+ All models were trained for 30 epochs before being testing on the final held out data, the results of which are include below:
+ \begin{figure}[h!] \centering \begin{minipage}{0.32\textwidth} \centering \includegraphics[width=\linewidth]{figures/linknet.png} \caption{LinkNet} \label{fig:linknet} \end{minipage}\hfill \begin{minipage}{0.32\textwidth} \centering \includegraphics[width=\linewidth]{figures/deep_labv3.png} \caption{DeepLabV3} \label{fig:deeplabv3} \end{minipage}\hfill \begin{minipage}{0.32\textwidth} \centering \includegraphics[width=\linewidth]{figures/deep_labv3plus.png} \caption{DeepLabV3+} \label{fig:deeplabv3plus} \end{minipage} \vspace{1cm}  \begin{minipage}{0.32\textwidth} \centering \includegraphics[width=\linewidth]{figures/manet.png} \caption{MA-Net} \label{fig:manet} \end{minipage}\hfill \begin{minipage}{0.32\textwidth} \centering \includegraphics[width=\linewidth]{figures/PSPNET.png} \caption{PSPNET} \label{fig:pspnet} \end{minipage}\hfill \begin{minipage}{0.32\textwidth} \centering \includegraphics[width=\linewidth]{figures/upernet.png} \caption{UperNet} \label{fig:upernet} \end{minipage} \vspace{1cm} \begin{minipage}{0.32\textwidth} \centering \includegraphics[width=\linewidth]{figures/PAN.png} \caption{PAN} \label{fig:pan} \end{minipage}\hfill \begin{minipage}{0.32\textwidth} \centering \includegraphics[width=\linewidth]{figures/dpt.png} \caption{DPT} \label{fig:dpt} \end{minipage}\hfill \label{fig:all_models}
+ \end{figure} 
+\begin{figure}[h!] \centering \includegraphics[width=1.1\textwidth]{figures/final_results.png} \caption{Final Evaluation graphs.} \label{fig:final_results} \end{figure} 
 
+\subsection{Temporal U-Net}
+    As mentioned earlier, we implemented a temporal version of base U-Net (as in the base algorithm) that used the CINE MRI frames from a single scan to build a contextual profile of a target frame. This was done by stacking 5 reference frames along the channels of the grayscale images so (6,256,256) as opposed to (1,256,256). The amount of reference frames chosen was due to a mixture of performance, the variability of provided frames in the dataset per scan as well as computational concerns. We used a sequence of six frames, from T-5 to the target frame T.
+    The stacked frames are passed in the form of a tensor into a PyTorch convolution layer (Conv2d) where each of the frames are treated as a separate input channel, the weights of each frame are then calculated simultaneously (effectively learning the spatial and temporal components) before being input into the model.
+     
+    The RV segmentation model was also trained in two stages one; was to create a model for general segmentation (IE. segment the heart tissue vs background) and two; was to use transfer learning with this model to be applicable to right ventricle segmentation specifically. 
+\begin{figure}[h!] \centering \includegraphics[width=0.8\textwidth]{figures/general_segmentaion_example.png} \caption{Example of segmentation masks from general classification model} \label{fig:2d_time_cine_holdout_test_predictions} \end{figure} 
+\begin{figure}[h!] \centering \includegraphics[width=0.8\textwidth]{figures/rv_segment_example.png} \caption{Example of RV segmentation} \label{fig:rv_segment_example} \end{figure} 
+   
   \section{Results}
+    \subsection{U-Net Models}
+    The U-NET models generally performed quite poor for RV segmentation, the highest dice score of ~0.43 for deeplabv3plus indicating quite a low level of performance. Some of the models had a fantastic cost function reduction but then failed to perform during evaluation, linknet as an example having a high validation/loss ratio indicating a high degree of overfitting to the training data. Data augmentation techniques that were applied seem to confuse the models and were removed, as well as to create a more consistent basis for model comparisons. 
+    \subsection{Temporal U-Net}
+    In contrast the transferred temporal U-Net reach an incredibly high dice score indicating a large overlap with the prediction masks and the ground truth labels at around ~0.97 dice score, evaluated of course on a held out data subset. Having the time contextual information seemed to help the model immensely as it most likely could discern components of the image (such as the area of interest) based on what it could see in the prior chronological frames. Some concerns with domain transfer and generalization could be with the requirement of context frames (for instance the ACDC dataset only has 2 per scan) and the computational overhead with the size of the model inputs with a stacked image.
 
-    % Example paragraph (placeholder)
-    \blindtext
-    Here is a citation example \cite{chow:68}.
+    \begin{figure}[h!] \centering \includegraphics[width=0.8\textwidth]{figures/transfer_learning_rate.png} \caption{Temporal U-Net - RV segmentation training} \label{fig:transfer_learning_rate} \end{figure} 
     
    \section{Discussion}
     This study evaluated three distinct approaches to right ventricular segmentation and pathology classification in cardiac MRI: a conventional convolutional neural network (U-Net), a transformer-based model (SegFormer), and a temporal architecture (2D+Time U-Net), along with a dual-stage SegFormer–ViT classification pipeline.
@@ -254,22 +280,23 @@
 
   \vskip 0.2in
 
-\begin{thebibliography}{9}
-\bibitem{ammar2021}
-Ammar, A., Bouattane, O., \& Youssfi, M. (2021). Automatic cardiac cine MRI segmentation and heart disease classification. \textit{Computerized medical imaging and graphics : the official journal of the Computerized Medical Imaging Society, 88}, 101864. \url{https://doi.org/10.1016/j.compmedimag.2021.101864}
-\bibitem{guo2021}
-Guo, Yuyu et al (2021). Automatic left ventricular cavity segmentation via deep spatial sequential network in 4D computed tomography. \textit{Computerized medical imaging and graphics : the official journal of the Computerized Medical Imaging Society, 91}, 101952. \url{https://doi.org/10.1016/j.compmedimag.2021.101952}
-\bibitem{linardos2022}
-Linardos, A., Kushibar, K., Walsh, S., Gkontra, P., \& Lekadir, K. (2022). Federated learning for multi-center imaging diagnostics: a simulation study in cardiovascular disease. \textit{Scientific Reports}, 12(1). \url{https://doi.org/10.1038/s41598-022-07186-4}.
-\bibitem{mnms2}
-\textit{M\&Ms-2 Challenge}. (n.d.). \url{https://www.ub.edu/mnms-2/}.
-\bibitem{segformer}
-\textit{SegFormer}. (n.d.). Huggingface.co. \url{https://huggingface.co/docs/transformers/model_doc/segformer}.
-\bibitem{vit}
-\textit{Vision Transformer (ViT)}. (n.d.). Huggingface.co. \url{https://huggingface.co/docs/transformers/model_doc/vit}.
-\bibitem{wu2024}
-Wu, H., Qu, G., Xiao, Z., \& Chunyu, F. (2024). Enhancing left ventricular segmentation in echocardiography with a modified mixed attention mechanism in SegFormer architecture. \textit{Heliyon, 10(15)}, e34845. \url{https://doi.org/10.1016/j.heliyon.2024.e34845}
-
-\end{thebibliography}
+ \afterpage{\clearpage
+    \begin{thebibliography}{9}
+      \bibitem{ammar2021}
+      Ammar, A., Bouattane, O., \& Youssfi, M. (2021). Automatic cardiac cine MRI segmentation and heart disease classification. \textit{Computerized medical imaging and graphics : the official journal of the Computerized Medical Imaging Society, 88}, 101864. \url{https://doi.org/10.1016/j.compmedimag.2021.101864}
+      \bibitem{guo2021}
+      Guo, Yuyu et al (2021). Automatic left ventricular cavity segmentation via deep spatial sequential network in 4D computed tomography. \textit{Computerized medical imaging and graphics : the official journal of the Computerized Medical Imaging Society, 91}, 101952. \url{https://doi.org/10.1016/j.compmedimag.2021.101952}
+      \bibitem{linardos2022}
+      Linardos, A., Kushibar, K., Walsh, S., Gkontra, P., \& Lekadir, K. (2022). Federated learning for multi-center imaging diagnostics: a simulation study in cardiovascular disease. \textit{Scientific Reports}, 12(1). \url{https://doi.org/10.1038/s41598-022-07186-4}.
+      \bibitem{mnms2}
+      \textit{M\&Ms-2 Challenge}. (n.d.). \url{https://www.ub.edu/mnms-2/}.
+      \bibitem{segformer}
+      \textit{SegFormer}. (n.d.). Huggingface.co. \url{https://huggingface.co/docs/transformers/model_doc/segformer}.
+      \bibitem{vit}
+      \textit{Vision Transformer (ViT)}. (n.d.). Huggingface.co. \url{https://huggingface.co/docs/transformers/model_doc/vit}.
+      \bibitem{wu2024}
+      Wu, H., Qu, G., Xiao, Z., \& Chunyu, F. (2024). Enhancing left ventricular segmentation in echocardiography with a modified mixed attention mechanism in SegFormer architecture. \textit{Heliyon, 10(15)}, e34845. \url{https://doi.org/10.1016/j.heliyon.2024.e34845}
+    \end{thebibliography}
+  }
 
 \end{document}
